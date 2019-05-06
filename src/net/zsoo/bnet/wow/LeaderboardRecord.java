@@ -15,6 +15,14 @@ public class LeaderboardRecord {
 		this.ranking = ranking;
 	}
 
+	public int getDuration() {
+		return duration;
+	}
+
+	public void setDuration(int duration) {
+		this.duration = duration;
+	}
+
 	public long getCompleted_timestamp() {
 		return completed_timestamp;
 	}

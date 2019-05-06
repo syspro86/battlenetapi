@@ -15,8 +15,10 @@ import java.util.Map;
 import com.google.gson.Gson;
 
 import net.zsoo.bnet.wow.Dungeon;
+import net.zsoo.bnet.wow.IdAndName;
 import net.zsoo.bnet.wow.LeaderboardResult;
 import net.zsoo.bnet.wow.Realm;
+import net.zsoo.bnet.wow.Specialization;
 
 public class BNAPI {
 
@@ -94,6 +96,7 @@ public class BNAPI {
 	public class WOWApi {
 		public RealmApi realm = new RealmApi();
 		public DungeonApi dungeon = new DungeonApi();
+		public SpecializationApi specialization = new SpecializationApi();
 		public LeaderboardApi leaderboard = new LeaderboardApi();
 
 		public class RealmApi {
@@ -132,6 +135,35 @@ public class BNAPI {
 				});
 
 				return ret.toArray(new Dungeon[ret.size()]);
+			}
+		}
+
+		public class SpecializationApi {
+			public class SpecializationIndexResult {
+				private IdAndName[] character_specializations;
+
+				public IdAndName[] getCharacter_specializations() {
+					return character_specializations;
+				}
+
+				public void setCharacter_specializations(IdAndName[] character_specializations) {
+					this.character_specializations = character_specializations;
+				}
+			}
+
+			public IdAndName[] index() {
+				SpecializationIndexResult result = request(
+						"/data/wow/playable-specialization/index?namespace=static-kr&locale=ko_KR&access_token="
+								+ apiToken,
+						SpecializationIndexResult.class);
+
+				return result.getCharacter_specializations();
+			}
+
+			public Specialization byId(int id) {
+				Specialization result = request("/data/wow/playable-specialization/" + id
+						+ "?namespace=static-kr&locale=ko_KR&access_token=" + apiToken, Specialization.class);
+				return result;
 			}
 		}
 

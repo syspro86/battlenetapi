@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class LeaderboardRecordMember {
 	private LeaderboardRecordMemberProfile profile;
 	private HashMap faction;
-	private HashMap specialization;
+	private IdAndName specialization;
 
 	public LeaderboardRecordMemberProfile getProfile() {
 		return profile;
@@ -23,11 +23,11 @@ public class LeaderboardRecordMember {
 		this.faction = faction;
 	}
 
-	public HashMap getSpecialization() {
+	public IdAndName getSpecialization() {
 		return specialization;
 	}
 
-	public void setSpecialization(HashMap specialization) {
+	public void setSpecialization(IdAndName specialization) {
 		this.specialization = specialization;
 	}
 
