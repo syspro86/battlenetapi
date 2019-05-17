@@ -215,12 +215,10 @@ public class BNAPI {
 					StringBuilder bonusListsStr = new StringBuilder();
 					if (bonusLists != null && bonusLists.length > 0) {
 						bonusListsStr.append("bl=");
-						bonusListsStr
-								.append(URLEncoder.encode(
-										String.join(",",
-												Arrays.stream(bonusLists).mapToObj(String::valueOf)
-														.collect(Collectors.toList()).toArray(String[]::new)),
-										"UTF-8"));
+						bonusListsStr.append(URLEncoder.encode(
+								String.join(",",
+										Arrays.stream(bonusLists).mapToObj(String::valueOf).toArray(String[]::new)),
+								"UTF-8"));
 						bonusListsStr.append("&");
 					}
 					return request("/wow/item/" + itemId + "?" + bonusListsStr.toString() + "locale=ko_KR&access_token="
