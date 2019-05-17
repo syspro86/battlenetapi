@@ -4,18 +4,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 
+import net.zsoo.bnet.wow.CharacterProfile;
 import net.zsoo.bnet.wow.Dungeon;
 import net.zsoo.bnet.wow.IdAndName;
+import net.zsoo.bnet.wow.Item;
 import net.zsoo.bnet.wow.LeaderboardResult;
 import net.zsoo.bnet.wow.Realm;
 import net.zsoo.bnet.wow.Specialization;
@@ -98,6 +104,8 @@ public class BNAPI {
 		public DungeonApi dungeon = new DungeonApi();
 		public SpecializationApi specialization = new SpecializationApi();
 		public LeaderboardApi leaderboard = new LeaderboardApi();
+		public CharacterApi character = new CharacterApi();
+		public ItemApi item = new ItemApi();
 
 		public class RealmApi {
 			public Realm[] index() {
@@ -174,6 +182,52 @@ public class BNAPI {
 								+ period + "?namespace=dynamic-kr&locale=ko_KR&access_token=" + apiToken,
 						LeaderboardResult.class);
 
+			}
+		}
+
+		public class CharacterApi {
+			private CharacterProfile requestProfile(String realm, String name, String fields) {
+				try {
+					return request("/wow/character/" + URLEncoder.encode(realm, "UTF-8") + "/"
+							+ URLEncoder.encode(name, "UTF-8") + "?fields=" + URLEncoder.encode(fields, "UTF-8")
+							+ "&locale=ko_KR&access_token=" + apiToken, CharacterProfile.class);
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			public CharacterProfile feedAndItems(String realm, String name) {
+				return requestProfile(realm, name, "feed,items");
+			}
+
+			public CharacterProfile feed(String realm, String name) {
+				return requestProfile(realm, name, "feed");
+			}
+
+			public CharacterProfile items(String realm, String name) {
+				return requestProfile(realm, name, "items");
+			}
+		}
+
+		public class ItemApi {
+			public Item get(int itemId, int[] bonusLists) {
+				try {
+					StringBuilder bonusListsStr = new StringBuilder();
+					if (bonusLists != null && bonusLists.length > 0) {
+						bonusListsStr.append("bl=");
+						bonusListsStr
+								.append(URLEncoder.encode(
+										String.join(",",
+												Arrays.stream(bonusLists).mapToObj(String::valueOf)
+														.collect(Collectors.toList()).toArray(String[]::new)),
+										"UTF-8"));
+						bonusListsStr.append("&");
+					}
+					return request("/wow/item/" + itemId + "?" + bonusListsStr.toString() + "locale=ko_KR&access_token="
+							+ apiToken, Item.class);
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}
