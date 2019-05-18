@@ -17,8 +17,8 @@ public class CharacterProfileItem {
 	private int artifactId;
 	private int displayInfoId;
 	private int artifactAppearanceId;
-	private int[] artifactTraits;
-	private int[] relics;
+	private HashMap[] artifactTraits;
+	private HashMap[] relics;
 	private HashMap appearance;
 	private AzeriteItem azeriteItem;
 	private AzeriteEmpoweredItem azeriteEmpoweredItem;
@@ -135,19 +135,19 @@ public class CharacterProfileItem {
 		this.artifactAppearanceId = artifactAppearanceId;
 	}
 
-	public int[] getArtifactTraits() {
+	public HashMap[] getArtifactTraits() {
 		return artifactTraits;
 	}
 
-	public void setArtifactTraits(int[] artifactTraits) {
+	public void setArtifactTraits(HashMap[] artifactTraits) {
 		this.artifactTraits = artifactTraits;
 	}
 
-	public int[] getRelics() {
+	public HashMap[] getRelics() {
 		return relics;
 	}
 
-	public void setRelics(int[] relics) {
+	public void setRelics(HashMap[] relics) {
 		this.relics = relics;
 	}
 
