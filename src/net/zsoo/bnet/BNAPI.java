@@ -200,12 +200,20 @@ public class BNAPI {
 				return requestProfile(realm, name, "feed,items");
 			}
 
+			public CharacterProfile feedAndItemsAndTalents(String realm, String name) {
+				return requestProfile(realm, name, "feed,items,talents");
+			}
+
 			public CharacterProfile feed(String realm, String name) {
 				return requestProfile(realm, name, "feed");
 			}
 
 			public CharacterProfile items(String realm, String name) {
 				return requestProfile(realm, name, "items");
+			}
+
+			public CharacterProfile talents(String realm, String name) {
+				return requestProfile(realm, name, "talents");
 			}
 		}
 

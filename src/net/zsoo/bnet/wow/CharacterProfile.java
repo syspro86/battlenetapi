@@ -18,6 +18,7 @@ public class CharacterProfile {
 	private int faction;
 	private CharacterProfileFeed[] feed;
 	private CharacterProfileItems items;
+	private CharacterProfileTalent[] talents;
 
 	public long getLastModified() {
 		return lastModified;
@@ -129,5 +130,13 @@ public class CharacterProfile {
 
 	public void setItems(CharacterProfileItems items) {
 		this.items = items;
+	}
+
+	public CharacterProfileTalent[] getTalents() {
+		return talents;
+	}
+
+	public void setTalents(CharacterProfileTalent[] talents) {
+		this.talents = talents;
 	}
 }
