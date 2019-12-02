@@ -63,8 +63,12 @@ public class BNAPI {
 		switch (region) {
 		case "us":
 			return "en_US";
+		case "eu":
+			return "en_GB";
 		case "kr":
 			return "ko_KR";
+		case "tw":
+			return "zh_TW";
 		}
 		return null;
 	}
