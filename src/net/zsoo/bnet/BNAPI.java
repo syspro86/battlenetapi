@@ -51,7 +51,11 @@ public class BNAPI {
 		apiToken = getToken();
 	}
 
-	private String namespace() {
+	private String namespaceS() {
+		return "static-" + this.region;
+	}
+
+	private String namespaceD() {
 		return "dynamic-" + this.region;
 	}
 
@@ -63,12 +67,28 @@ public class BNAPI {
 		return null;
 	}
 
+	private String regionParameterS() {
+		return "region=" + region + "&namespace=" + namespaceS() + "&locale=" + locale();
+	}
+
+	private String regionParameterD() {
+		return "region=" + region + "&namespace=" + namespaceD() + "&locale=" + locale();
+	}
+
 	private String regionParameter() {
-		return "region=" + region + "&namespace=" + namespace() + "&locale=" + locale();
+		return "region=" + region + "&locale=" + locale();
 	}
 
 	private String tokenParameter() {
 		return "&access_token=" + apiToken;
+	}
+
+	private String postfixParameterS() {
+		return regionParameterS() + tokenParameter();
+	}
+
+	private String postfixParameterD() {
+		return regionParameterD() + tokenParameter();
 	}
 
 	private String postfixParameter() {
@@ -142,7 +162,7 @@ public class BNAPI {
 
 		public class RealmApi {
 			public Realm[] index() {
-				HashMap<?, ?> result = request("/data/wow/realm/index?" + postfixParameter());
+				HashMap<?, ?> result = request("/data/wow/realm/index?" + postfixParameterD());
 
 				List<Map> realms = (List<Map>) result.get("realms");
 				ArrayList<Realm> ret = new ArrayList<>();
@@ -159,13 +179,13 @@ public class BNAPI {
 
 		public class DungeonApi {
 			public Dungeon[] index() {
-				Map<?, ?> result = request("/data/wow/mythic-keystone/dungeon/index?" + postfixParameter());
+				Map<?, ?> result = request("/data/wow/mythic-keystone/dungeon/index?" + postfixParameterD());
 
 				List<Map> dungeons = (List<Map>) result.get("dungeons");
 				ArrayList<Dungeon> ret = new ArrayList<>();
 				dungeons.forEach(dungeon -> {
 					Dungeon dg = request("/data/wow/mythic-keystone/dungeon/" + ((Double) dungeon.get("id")).intValue()
-							+ "?" + postfixParameter(), Dungeon.class);
+							+ "?" + postfixParameterD(), Dungeon.class);
 
 					if (dg != null) {
 						ret.add(dg);
@@ -191,14 +211,14 @@ public class BNAPI {
 
 			public IdAndName[] index() {
 				SpecializationIndexResult result = request(
-						"/data/wow/playable-specialization/index?" + postfixParameter(),
+						"/data/wow/playable-specialization/index?" + postfixParameterS(),
 						SpecializationIndexResult.class);
 
 				return result.getCharacter_specializations();
 			}
 
 			public Specialization byId(int id) {
-				Specialization result = request("/data/wow/playable-specialization/" + id + "?" + postfixParameter(),
+				Specialization result = request("/data/wow/playable-specialization/" + id + "?" + postfixParameterS(),
 						Specialization.class);
 				return result;
 			}
@@ -207,7 +227,7 @@ public class BNAPI {
 		public class LeaderboardApi {
 			public LeaderboardResult list(int realmId, int dungeonId, int period) {
 				return request("/data/wow/connected-realm/" + realmId + "/mythic-leaderboard/" + dungeonId + "/period/"
-						+ period + "?" + postfixParameter(), LeaderboardResult.class);
+						+ period + "?" + postfixParameterD(), LeaderboardResult.class);
 
 			}
 		}
@@ -266,7 +286,7 @@ public class BNAPI {
 
 		public class SeasonApi {
 			public SeasonIndex index() {
-				SeasonIndex result = request("/data/wow/mythic-keystone/season/index?" + postfixParameter(),
+				SeasonIndex result = request("/data/wow/mythic-keystone/season/index?" + postfixParameterD(),
 						SeasonIndex.class);
 				return result;
 			}
