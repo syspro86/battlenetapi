@@ -61,6 +61,8 @@ public class BNAPI {
 
 	private String locale() {
 		switch (region) {
+		case "us":
+			return "en_US";
 		case "kr":
 			return "ko_KR";
 		}
