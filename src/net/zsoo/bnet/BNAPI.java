@@ -14,7 +14,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 
@@ -29,19 +28,51 @@ import net.zsoo.bnet.wow.Specialization;
 
 public class BNAPI {
 
-	static final String urlPrefix = "https://kr.api.blizzard.com:443";
+	final String urlPrefix;
 
 	public WOWApi wow = new WOWApi();
 
+	private String region;
 	private String apiId;
 	private String apiSecret;
 	private String apiToken;
 
 	public BNAPI(String apiId, String apiSecret) {
+		this(apiId, apiSecret, "kr");
+	}
+
+	public BNAPI(String apiId, String apiSecret, String region) {
 		this.apiId = apiId;
 		this.apiSecret = apiSecret;
+		this.region = region;
+
+		urlPrefix = "https://" + this.region + ".api.blizzard.com:443";
 
 		apiToken = getToken();
+	}
+
+	private String namespace() {
+		return "dynamic-" + this.region;
+	}
+
+	private String locale() {
+		switch (region) {
+		case "kr":
+			return "ko_KR";
+		}
+		return null;
+	}
+
+	private String regionParameter() {
+		return "region=" + region + "&namespace=" + namespace() + "&locale=" + locale();
+	}
+
+	private String tokenParameter() {
+		return "&access_token=" + apiToken;
+	}
+
+	private String postfixParameter() {
+		return regionParameter() + tokenParameter();
 	}
 
 	private String getToken() {
@@ -76,7 +107,7 @@ public class BNAPI {
 		return null;
 	}
 
-	private static <T> T request(String uri, Class<T> clazz) {
+	private <T> T request(String uri, Class<T> clazz) {
 		try {
 			String url = urlPrefix + uri;
 			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -96,7 +127,7 @@ public class BNAPI {
 		return null;
 	}
 
-	private static HashMap<?, ?> request(String uri) {
+	private HashMap<?, ?> request(String uri) {
 		return request(uri, HashMap.class);
 	}
 
@@ -111,8 +142,7 @@ public class BNAPI {
 
 		public class RealmApi {
 			public Realm[] index() {
-				HashMap<?, ?> result = request(
-						"/data/wow/realm/index?region=kr&namespace=dynamic-kr&locale=ko_KR&access_token=" + apiToken);
+				HashMap<?, ?> result = request("/data/wow/realm/index?" + postfixParameter());
 
 				List<Map> realms = (List<Map>) result.get("realms");
 				ArrayList<Realm> ret = new ArrayList<>();
@@ -129,15 +159,13 @@ public class BNAPI {
 
 		public class DungeonApi {
 			public Dungeon[] index() {
-				Map<?, ?> result = request(
-						"/data/wow/mythic-keystone/dungeon/index?namespace=dynamic-kr&locale=ko_KR&access_token="
-								+ apiToken);
+				Map<?, ?> result = request("/data/wow/mythic-keystone/dungeon/index?" + postfixParameter());
 
 				List<Map> dungeons = (List<Map>) result.get("dungeons");
 				ArrayList<Dungeon> ret = new ArrayList<>();
 				dungeons.forEach(dungeon -> {
 					Dungeon dg = request("/data/wow/mythic-keystone/dungeon/" + ((Double) dungeon.get("id")).intValue()
-							+ "?namespace=dynamic-kr&locale=ko_KR&access_token=" + apiToken, Dungeon.class);
+							+ "?" + postfixParameter(), Dungeon.class);
 
 					if (dg != null) {
 						ret.add(dg);
@@ -163,26 +191,23 @@ public class BNAPI {
 
 			public IdAndName[] index() {
 				SpecializationIndexResult result = request(
-						"/data/wow/playable-specialization/index?namespace=static-kr&locale=ko_KR&access_token="
-								+ apiToken,
+						"/data/wow/playable-specialization/index?" + postfixParameter(),
 						SpecializationIndexResult.class);
 
 				return result.getCharacter_specializations();
 			}
 
 			public Specialization byId(int id) {
-				Specialization result = request("/data/wow/playable-specialization/" + id
-						+ "?namespace=static-kr&locale=ko_KR&access_token=" + apiToken, Specialization.class);
+				Specialization result = request("/data/wow/playable-specialization/" + id + "?" + postfixParameter(),
+						Specialization.class);
 				return result;
 			}
 		}
 
 		public class LeaderboardApi {
 			public LeaderboardResult list(int realmId, int dungeonId, int period) {
-				return request(
-						"/data/wow/connected-realm/" + realmId + "/mythic-leaderboard/" + dungeonId + "/period/"
-								+ period + "?namespace=dynamic-kr&locale=ko_KR&access_token=" + apiToken,
-						LeaderboardResult.class);
+				return request("/data/wow/connected-realm/" + realmId + "/mythic-leaderboard/" + dungeonId + "/period/"
+						+ period + "?" + postfixParameter(), LeaderboardResult.class);
 
 			}
 		}
@@ -191,8 +216,8 @@ public class BNAPI {
 			private CharacterProfile requestProfile(String realm, String name, String fields) {
 				try {
 					return request("/wow/character/" + URLEncoder.encode(realm, "UTF-8") + "/"
-							+ URLEncoder.encode(name, "UTF-8") + "?fields=" + URLEncoder.encode(fields, "UTF-8")
-							+ "&locale=ko_KR&access_token=" + apiToken, CharacterProfile.class);
+							+ URLEncoder.encode(name, "UTF-8") + "?fields=" + URLEncoder.encode(fields, "UTF-8") + "&"
+							+ postfixParameter(), CharacterProfile.class);
 				} catch (UnsupportedEncodingException e) {
 					throw new RuntimeException(e);
 				}
@@ -231,19 +256,18 @@ public class BNAPI {
 								"UTF-8"));
 						bonusListsStr.append("&");
 					}
-					return request("/wow/item/" + itemId + "?" + bonusListsStr.toString() + "locale=ko_KR&access_token="
-							+ apiToken, Item.class);
+					return request("/wow/item/" + itemId + "?" + bonusListsStr.toString() + postfixParameter(),
+							Item.class);
 				} catch (UnsupportedEncodingException e) {
 					throw new RuntimeException(e);
 				}
 			}
 		}
-		
+
 		public class SeasonApi {
 			public SeasonIndex index() {
-				SeasonIndex result = request(
-						"/data/wow/mythic-keystone/season/index?namespace=dynamic-kr&locale=ko_KR&access_token="
-								+ apiToken, SeasonIndex.class);
+				SeasonIndex result = request("/data/wow/mythic-keystone/season/index?" + postfixParameter(),
+						SeasonIndex.class);
 				return result;
 			}
 		}
