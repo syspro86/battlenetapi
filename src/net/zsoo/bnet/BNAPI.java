@@ -24,6 +24,7 @@ import net.zsoo.bnet.wow.IdAndName;
 import net.zsoo.bnet.wow.Item;
 import net.zsoo.bnet.wow.LeaderboardResult;
 import net.zsoo.bnet.wow.Realm;
+import net.zsoo.bnet.wow.SeasonIndex;
 import net.zsoo.bnet.wow.Specialization;
 
 public class BNAPI {
@@ -106,6 +107,7 @@ public class BNAPI {
 		public LeaderboardApi leaderboard = new LeaderboardApi();
 		public CharacterApi character = new CharacterApi();
 		public ItemApi item = new ItemApi();
+		public SeasonApi season = new SeasonApi();
 
 		public class RealmApi {
 			public Realm[] index() {
@@ -234,6 +236,15 @@ public class BNAPI {
 				} catch (UnsupportedEncodingException e) {
 					throw new RuntimeException(e);
 				}
+			}
+		}
+		
+		public class SeasonApi {
+			public SeasonIndex index() {
+				SeasonIndex result = request(
+						"/data/wow/mythic-keystone/season/index?namespace=dynamic-kr&locale=ko_KR&access_token="
+								+ apiToken, SeasonIndex.class);
+				return result;
 			}
 		}
 	}
