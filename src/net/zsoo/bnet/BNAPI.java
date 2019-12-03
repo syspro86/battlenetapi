@@ -118,12 +118,15 @@ public class BNAPI {
 			os.flush();
 
 			int code = conn.getResponseCode();
+			InputStream is = conn.getInputStream();
+
 			if (code != 200) {
 				System.err.println("getToken failed. resp code = " + code);
+				Gson gson = new Gson();
+				HashMap<?, ?> obj = gson.fromJson(new InputStreamReader(is), HashMap.class);
+				System.err.println(gson.toJson(obj));
 				return null;
 			}
-
-			InputStream is = conn.getInputStream();
 
 			Gson gson = new Gson();
 			HashMap<?, ?> obj = gson.fromJson(new InputStreamReader(is), HashMap.class);
