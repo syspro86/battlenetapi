@@ -103,7 +103,7 @@ public class BNAPI {
 
 	private String getToken() {
 		try {
-			String url = "https://kr.battle.net/oauth/token";
+			String url = "https://" + region + ".battle.net/oauth/token";
 			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
 
 			String auth = apiId + ':' + apiSecret;
