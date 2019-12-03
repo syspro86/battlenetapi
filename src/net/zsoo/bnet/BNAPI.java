@@ -119,6 +119,7 @@ public class BNAPI {
 
 			int code = conn.getResponseCode();
 			if (code != 200) {
+				System.err.println("getToken failed. resp code = " + code);
 				return null;
 			}
 
