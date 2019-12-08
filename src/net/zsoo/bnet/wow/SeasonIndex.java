@@ -1,22 +1,22 @@
 package net.zsoo.bnet.wow;
 
 public class SeasonIndex {
-	private IdAndName[] seasons;
-	private IdAndName current_season;
+	private SimpleID[] seasons;
+	private SimpleID current_season;
 
-	public IdAndName[] getSeasons() {
+	public SimpleID[] getSeasons() {
 		return seasons;
 	}
 
-	public void setSeasons(IdAndName[] seasons) {
+	public void setSeasons(SimpleID[] seasons) {
 		this.seasons = seasons;
 	}
 
-	public IdAndName getCurrent_season() {
+	public SimpleID getCurrent_season() {
 		return current_season;
 	}
 
-	public void setCurrent_season(IdAndName current_season) {
+	public void setCurrent_season(SimpleID current_season) {
 		this.current_season = current_season;
 	}
 }

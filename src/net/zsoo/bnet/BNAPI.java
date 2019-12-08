@@ -1,5 +1,7 @@
 package net.zsoo.bnet;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,23 +10,25 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.google.gson.Gson;
 
+import net.zsoo.bnet.profile.wow.character.CharacterEquipmentResp;
+import net.zsoo.bnet.profile.wow.character.CharacterMediaResp;
+import net.zsoo.bnet.profile.wow.character.CharacterProfileResp;
 import net.zsoo.bnet.wow.CharacterProfile;
 import net.zsoo.bnet.wow.Dungeon;
-import net.zsoo.bnet.wow.IdAndName;
 import net.zsoo.bnet.wow.Item;
 import net.zsoo.bnet.wow.LeaderboardResult;
 import net.zsoo.bnet.wow.Realm;
 import net.zsoo.bnet.wow.SeasonIndex;
+import net.zsoo.bnet.wow.SimpleID;
 import net.zsoo.bnet.wow.Specialization;
+import net.zsoo.bnet.wow.data.DungeonIndex;
+import net.zsoo.bnet.wow.data.RealmIndex;
 
 public class BNAPI {
 
@@ -51,14 +55,6 @@ public class BNAPI {
 		apiToken = getToken();
 	}
 
-	private String namespaceS() {
-		return "static-" + this.region;
-	}
-
-	private String namespaceD() {
-		return "dynamic-" + this.region;
-	}
-
 	private String locale() {
 		switch (region) {
 		case "us":
@@ -73,32 +69,27 @@ public class BNAPI {
 		return null;
 	}
 
-	private String regionParameterS() {
-		return "region=" + region + "&namespace=" + namespaceS() + "&locale=" + locale();
-	}
-
-	private String regionParameterD() {
-		return "region=" + region + "&namespace=" + namespaceD() + "&locale=" + locale();
-	}
-
-	private String regionParameter() {
-		return "region=" + region + "&locale=" + locale();
+	private String regionParameter(String namespace) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("region=");
+		sb.append(region);
+		if (namespace != null) {
+			sb.append("&namespace=");
+			sb.append(namespace);
+			sb.append("-");
+			sb.append(this.region);
+		}
+		sb.append("&locale=");
+		sb.append(locale());
+		return sb.toString();
 	}
 
 	private String tokenParameter() {
 		return "&access_token=" + apiToken;
 	}
 
-	private String postfixParameterS() {
-		return regionParameterS() + tokenParameter();
-	}
-
-	private String postfixParameterD() {
-		return regionParameterD() + tokenParameter();
-	}
-
-	private String postfixParameter() {
-		return regionParameter() + tokenParameter();
+	private String postfixParameter(String namespace) {
+		return regionParameter(namespace) + tokenParameter();
 	}
 
 	private String getToken() {
@@ -158,10 +149,6 @@ public class BNAPI {
 		return null;
 	}
 
-	private HashMap<?, ?> request(String uri) {
-		return request(uri, HashMap.class);
-	}
-
 	public class WOWApi {
 		public RealmApi realm = new RealmApi();
 		public DungeonApi dungeon = new DungeonApi();
@@ -173,132 +160,103 @@ public class BNAPI {
 
 		public class RealmApi {
 			public Realm[] index() {
-				HashMap<?, ?> result = request("/data/wow/realm/index?" + postfixParameterD());
-
-				List<Map> realms = (List<Map>) result.get("realms");
-				ArrayList<Realm> ret = new ArrayList<>();
-				realms.forEach(realm -> {
-					Realm rm = new Realm();
-					rm.setId(((Double) realm.get("id")).intValue());
-					rm.setName((String) realm.get("name"));
-					ret.add(rm);
-				});
-
-				return ret.toArray(new Realm[ret.size()]);
+				RealmIndex result = request("/data/wow/realm/index?" + postfixParameter("dynamic"), RealmIndex.class);
+				return result.getRealms();
 			}
 		}
 
 		public class DungeonApi {
 			public Dungeon[] index() {
-				Map<?, ?> result = request("/data/wow/mythic-keystone/dungeon/index?" + postfixParameterD());
+				DungeonIndex result = request("/data/wow/mythic-keystone/dungeon/index?" + postfixParameter("dynamic"), DungeonIndex.class);
 
-				List<Map> dungeons = (List<Map>) result.get("dungeons");
-				ArrayList<Dungeon> ret = new ArrayList<>();
-				dungeons.forEach(dungeon -> {
-					Dungeon dg = request("/data/wow/mythic-keystone/dungeon/" + ((Double) dungeon.get("id")).intValue()
-							+ "?" + postfixParameterD(), Dungeon.class);
-
-					if (dg != null) {
-						ret.add(dg);
-					}
-				});
-
-				return ret.toArray(new Dungeon[ret.size()]);
+				SimpleID[] dungeons = result.getDungeons();
+				return Arrays.stream(dungeons).map(dungeon -> {
+					return request("/data/wow/mythic-keystone/dungeon/" + dungeon.getId() + "?" + postfixParameter("dynamic"), Dungeon.class);
+				}).filter(dg -> dg != null).toArray(Dungeon[]::new);
 			}
 		}
 
 		public class SpecializationApi {
 			public class SpecializationIndexResult {
-				private IdAndName[] character_specializations;
+				private SimpleID[] character_specializations;
 
-				public IdAndName[] getCharacter_specializations() {
+				public SimpleID[] getCharacter_specializations() {
 					return character_specializations;
 				}
 
-				public void setCharacter_specializations(IdAndName[] character_specializations) {
+				public void setCharacter_specializations(SimpleID[] character_specializations) {
 					this.character_specializations = character_specializations;
 				}
 			}
 
-			public IdAndName[] index() {
-				SpecializationIndexResult result = request(
-						"/data/wow/playable-specialization/index?" + postfixParameterS(),
+			public SimpleID[] index() {
+				SpecializationIndexResult result = request("/data/wow/playable-specialization/index?" + postfixParameter("static"),
 						SpecializationIndexResult.class);
 
 				return result.getCharacter_specializations();
 			}
 
 			public Specialization byId(int id) {
-				Specialization result = request("/data/wow/playable-specialization/" + id + "?" + postfixParameterS(),
-						Specialization.class);
+				Specialization result = request("/data/wow/playable-specialization/" + id + "?" + postfixParameter("static"), Specialization.class);
 				return result;
 			}
 		}
 
 		public class LeaderboardApi {
 			public LeaderboardResult list(int realmId, int dungeonId, int period) {
-				return request("/data/wow/connected-realm/" + realmId + "/mythic-leaderboard/" + dungeonId + "/period/"
-						+ period + "?" + postfixParameterD(), LeaderboardResult.class);
+				return request(
+						"/data/wow/connected-realm/" + realmId + "/mythic-leaderboard/" + dungeonId + "/period/" + period + "?" + postfixParameter("dynamic"),
+						LeaderboardResult.class);
 
 			}
 		}
 
 		public class CharacterApi {
-			private CharacterProfile requestProfile(String realm, String name, String fields) {
+			public CharacterProfile get(String realm, String name) {
 				try {
-					return request("/wow/character/" + URLEncoder.encode(realm, "UTF-8") + "/"
-							+ URLEncoder.encode(name, "UTF-8") + "?fields=" + URLEncoder.encode(fields, "UTF-8") + "&"
-							+ postfixParameter(), CharacterProfile.class);
+					CharacterProfileResp profileResp = request("/profile/wow/character/" + URLEncoder.encode(realm, "UTF-8") + "/"
+							+ URLEncoder.encode(name, "UTF-8") + "?" + postfixParameter("profile"), CharacterProfileResp.class);
+
+					if (profileResp == null) {
+						return null;
+					}
+					
+					CharacterEquipmentResp equipmentResp = request("/profile/wow/character/" + URLEncoder.encode(realm, "UTF-8") + "/"
+							+ URLEncoder.encode(name, "UTF-8") + "/equipment?" + postfixParameter("profile"), CharacterEquipmentResp.class);
+
+					CharacterMediaResp mediaResp = request("/profile/wow/character/" + URLEncoder.encode(realm, "UTF-8") + "/"
+							+ URLEncoder.encode(name, "UTF-8") + "/character-media?" + postfixParameter("profile"), CharacterMediaResp.class);
+
+					CharacterProfile profile = new CharacterProfile();
+					profile.setId(profileResp.getId());
+					profile.setName(profileResp.getName());
+					profile.setGender(profileResp.getGender());
+					profile.setFaction(profileResp.getFaction());
+					profile.setRace(profileResp.getRace());
+					profile.setCharacter_class(profileResp.getCharacter_class());
+					profile.setActive_spec(profileResp.getActive_spec());
+					profile.setRealm(profileResp.getRealm());
+					profile.setGuild(profileResp.getGuild());
+					profile.setEquipped_items(equipmentResp.getEquipped_items());
+					profile.setAvatar_url(mediaResp.getAvatar_url());
+					profile.setBust_url(mediaResp.getBust_url());
+					profile.setRender_url(mediaResp.getRender_url());
+					return profile;
 				} catch (UnsupportedEncodingException e) {
 					throw new RuntimeException(e);
 				}
-			}
-
-			public CharacterProfile feedAndItems(String realm, String name) {
-				return requestProfile(realm, name, "feed,items");
-			}
-
-			public CharacterProfile feedAndItemsAndTalents(String realm, String name) {
-				return requestProfile(realm, name, "feed,items,talents");
-			}
-
-			public CharacterProfile feed(String realm, String name) {
-				return requestProfile(realm, name, "feed");
-			}
-
-			public CharacterProfile items(String realm, String name) {
-				return requestProfile(realm, name, "items");
-			}
-
-			public CharacterProfile talents(String realm, String name) {
-				return requestProfile(realm, name, "talents");
 			}
 		}
 
 		public class ItemApi {
-			public Item get(int itemId, int[] bonusLists) {
-				try {
-					StringBuilder bonusListsStr = new StringBuilder();
-					if (bonusLists != null && bonusLists.length > 0) {
-						bonusListsStr.append("bl=");
-						bonusListsStr.append(URLEncoder.encode(
-								String.join(",",
-										Arrays.stream(bonusLists).mapToObj(String::valueOf).toArray(String[]::new)),
-								"UTF-8"));
-						bonusListsStr.append("&");
-					}
-					return request("/wow/item/" + itemId + "?" + bonusListsStr.toString() + postfixParameter(),
-							Item.class);
-				} catch (UnsupportedEncodingException e) {
-					throw new RuntimeException(e);
-				}
+			public Item get(int itemId) {
+				return request("/data/wow/item/" + itemId + "?" + postfixParameter("static"), Item.class);
 			}
 		}
 
 		public class SeasonApi {
 			public SeasonIndex index() {
-				SeasonIndex result = request("/data/wow/mythic-keystone/season/index?" + postfixParameterD(),
-						SeasonIndex.class);
+				SeasonIndex result = request("/data/wow/mythic-keystone/season/index?" + postfixParameter("dynamic"), SeasonIndex.class);
 				return result;
 			}
 		}

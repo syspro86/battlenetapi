@@ -1,13 +1,13 @@
 package net.zsoo.bnet.wow;
 
-public class LeaderboardRecordMemberProfile extends IdAndName {
-	private IdAndSlug realm;
+public class LeaderboardRecordMemberProfile extends SimpleID {
+	private SimpleID realm;
 
-	public IdAndSlug getRealm() {
+	public SimpleID getRealm() {
 		return realm;
 	}
 
-	public void setRealm(IdAndSlug realm) {
+	public void setRealm(SimpleID realm) {
 		this.realm = realm;
 	}
 

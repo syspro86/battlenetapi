@@ -2,16 +2,16 @@ package net.zsoo.bnet.wow;
 
 import com.google.gson.Gson;
 
-public class IdAndSlug extends Slug {
+public class Href {
 
-	private int id;
-
-	public int getId() {
-		return id;
+	private String href;
+	
+	public String getHref() {
+		return href;
 	}
-
-	public void setId(int id) {
-		this.id = id;
+	
+	public void setHref(String href) {
+		this.href = href;
 	}
 
 	@Override

@@ -3,8 +3,8 @@ package net.zsoo.bnet.wow;
 public class AzeritePower {
 	private int id;
 	private int tier;
-	private int spellId;
-	private int bonusListId;
+	private Spell spell_tooltip;
+	private boolean is_display_hidden;
 
 	public int getId() {
 		return id;
@@ -22,19 +22,19 @@ public class AzeritePower {
 		this.tier = tier;
 	}
 
-	public int getSpellId() {
-		return spellId;
+	public Spell getSpell_tooltip() {
+		return spell_tooltip;
 	}
 
-	public void setSpellId(int spellId) {
-		this.spellId = spellId;
+	public void setSpell_tooltip(Spell spell_tooltip) {
+		this.spell_tooltip = spell_tooltip;
 	}
 
-	public int getBonusListId() {
-		return bonusListId;
+	public boolean isIs_display_hidden() {
+		return is_display_hidden;
 	}
 
-	public void setBonusListId(int bonusListId) {
-		this.bonusListId = bonusListId;
+	public void setIs_display_hidden(boolean is_display_hidden) {
+		this.is_display_hidden = is_display_hidden;
 	}
 }

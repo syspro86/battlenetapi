@@ -1,24 +1,24 @@
 package net.zsoo.bnet.wow;
 
-public class Dungeon extends IdAndName {
+public class Dungeon extends SimpleID {
 
-	private IdAndName map;
-	private Slug zone;
+	private SimpleID map;
+	private SimpleID zone;
 	private DungeonKeystoneUpagrde[] keystone_upgrades;
 
-	public IdAndName getMap() {
+	public SimpleID getMap() {
 		return map;
 	}
 
-	public void setMap(IdAndName map) {
+	public void setMap(SimpleID map) {
 		this.map = map;
 	}
 
-	public Slug getZone() {
+	public SimpleID getZone() {
 		return zone;
 	}
 
-	public void setZone(Slug zone) {
+	public void setZone(SimpleID zone) {
 		this.zone = zone;
 	}
 

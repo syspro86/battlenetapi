@@ -1,17 +1,17 @@
 package net.zsoo.bnet.wow;
 
 public class LeaderboardResult {
-	private IdAndName map;
+	private SimpleID map;
 	private int period;
 	private long period_start_timestamp;
 	private long period_end_timestamp;
 	private LeaderboardRecord[] leading_groups;
 
-	public IdAndName getMap() {
+	public SimpleID getMap() {
 		return map;
 	}
 
-	public void setMap(IdAndName map) {
+	public void setMap(SimpleID map) {
 		this.map = map;
 	}
 

@@ -1,11 +1,9 @@
 package net.zsoo.bnet.wow;
 
-import java.util.HashMap;
-
 public class LeaderboardRecordMember {
 	private LeaderboardRecordMemberProfile profile;
-	private HashMap faction;
-	private IdAndName specialization;
+	private SimpleID faction;
+	private SimpleID specialization;
 
 	public LeaderboardRecordMemberProfile getProfile() {
 		return profile;
@@ -15,19 +13,19 @@ public class LeaderboardRecordMember {
 		this.profile = profile;
 	}
 
-	public HashMap getFaction() {
+	public SimpleID getFaction() {
 		return faction;
 	}
 
-	public void setFaction(HashMap faction) {
+	public void setFaction(SimpleID faction) {
 		this.faction = faction;
 	}
 
-	public IdAndName getSpecialization() {
+	public SimpleID getSpecialization() {
 		return specialization;
 	}
 
-	public void setSpecialization(IdAndName specialization) {
+	public void setSpecialization(SimpleID specialization) {
 		this.specialization = specialization;
 	}
 
