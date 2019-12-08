@@ -143,7 +143,7 @@ public class BNAPI {
 			InputStream is = conn.getInputStream();
 
 			GsonBuilder gb = new GsonBuilder();
-			gb = gb.registerTypeAdapter(CharacterEquipmentItem.class, new CharacterEquipmentItem.NameDescriptionDeserilizer());
+//			gb = gb.registerTypeAdapter(CharacterEquipmentItem.class, new CharacterEquipmentItem.NameDescriptionDeserilizer());
 			Gson gson = gb.create();
 			T obj = gson.fromJson(new InputStreamReader(is), clazz);
 			return obj;
