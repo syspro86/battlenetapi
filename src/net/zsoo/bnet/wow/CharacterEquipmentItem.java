@@ -1,5 +1,14 @@
 package net.zsoo.bnet.wow;
 
+import java.lang.reflect.Type;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
 public class CharacterEquipmentItem {
 	private SimpleID item;
 	private Enchantment[] enchantments;
@@ -27,7 +36,8 @@ public class CharacterEquipmentItem {
 	private Transmog transmog;
 	private SimpleValue durability;
 	private boolean is_subclass_hidden;
-	private SimpleValue name_description;
+	private transient SimpleValue name_description;
+	private transient String name_description_str;
 
 	public SimpleID getItem() {
 		return item;
@@ -243,5 +253,35 @@ public class CharacterEquipmentItem {
 
 	public void setName_description(SimpleValue name_description) {
 		this.name_description = name_description;
+	}
+
+	public String getName_description_str() {
+		return name_description_str;
+	}
+
+	public void setName_description_str(String name_description_str) {
+		this.name_description_str = name_description_str;
+	}
+
+	public static class NameDescriptionDeserilizer implements JsonDeserializer<CharacterEquipmentItem> {
+		@Override
+		public CharacterEquipmentItem deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			CharacterEquipmentItem options = new Gson().fromJson(json, CharacterEquipmentItem.class);
+			JsonObject jsonObject = json.getAsJsonObject();
+
+			if (jsonObject.has("name_description")) {
+				JsonElement elem = jsonObject.get("name_description");
+				if (elem != null && !elem.isJsonNull()) {
+					String str = elem.getAsString();
+					if (str.startsWith("{")) {
+						SimpleValue sv = new Gson().fromJson(str, SimpleValue.class);
+						options.setName_description(sv);
+					} else {
+						options.setName_description_str(str);
+					}
+				}
+			}
+			return options;
+		}
 	}
 }

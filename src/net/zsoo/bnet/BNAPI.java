@@ -15,10 +15,12 @@ import java.util.Base64;
 import java.util.HashMap;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.zsoo.bnet.profile.wow.character.CharacterEquipmentResp;
 import net.zsoo.bnet.profile.wow.character.CharacterMediaResp;
 import net.zsoo.bnet.profile.wow.character.CharacterProfileResp;
+import net.zsoo.bnet.wow.CharacterEquipmentItem;
 import net.zsoo.bnet.wow.CharacterProfile;
 import net.zsoo.bnet.wow.Dungeon;
 import net.zsoo.bnet.wow.Item;
@@ -140,7 +142,9 @@ public class BNAPI {
 
 			InputStream is = conn.getInputStream();
 
-			Gson gson = new Gson();
+			GsonBuilder gb = new GsonBuilder();
+			gb = gb.registerTypeAdapter(CharacterEquipmentItem.class, new CharacterEquipmentItem.NameDescriptionDeserilizer());
+			Gson gson = gb.create();
 			T obj = gson.fromJson(new InputStreamReader(is), clazz);
 			return obj;
 		} catch (IOException e) {
@@ -220,7 +224,7 @@ public class BNAPI {
 					if (profileResp == null) {
 						return null;
 					}
-					
+
 					CharacterEquipmentResp equipmentResp = request("/profile/wow/character/" + URLEncoder.encode(realm, "UTF-8") + "/"
 							+ URLEncoder.encode(name, "UTF-8") + "/equipment?" + postfixParameter("profile"), CharacterEquipmentResp.class);
 
