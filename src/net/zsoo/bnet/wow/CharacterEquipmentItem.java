@@ -36,8 +36,8 @@ public class CharacterEquipmentItem {
 	private Transmog transmog;
 	private SimpleValue durability;
 	private boolean is_subclass_hidden;
-	private transient SimpleValue name_description;
-	private transient String name_description_str;
+	private String name_description;
+	private SimpleValue name_description_map;
 
 	public SimpleID getItem() {
 		return item;
@@ -247,20 +247,20 @@ public class CharacterEquipmentItem {
 		this.is_subclass_hidden = is_subclass_hidden;
 	}
 
-	public SimpleValue getName_description() {
+	public String getName_description() {
 		return name_description;
 	}
 
-	public void setName_description(SimpleValue name_description) {
+	public void setName_description(String name_description) {
 		this.name_description = name_description;
 	}
 
-	public String getName_description_str() {
-		return name_description_str;
+	public SimpleValue getName_description_map() {
+		return name_description_map;
 	}
 
-	public void setName_description_str(String name_description_str) {
-		this.name_description_str = name_description_str;
+	public void setName_description_map(SimpleValue name_description_map) {
+		this.name_description_map = name_description_map;
 	}
 
 	public static class NameDescriptionDeserilizer implements JsonDeserializer<CharacterEquipmentItem> {
@@ -275,9 +275,9 @@ public class CharacterEquipmentItem {
 					String str = elem.getAsString();
 					if (str.startsWith("{")) {
 						SimpleValue sv = new Gson().fromJson(str, SimpleValue.class);
-						options.setName_description(sv);
+						options.setName_description_map(sv);
 					} else {
-						options.setName_description_str(str);
+						options.setName_description(str);
 					}
 				}
 			}
