@@ -2,12 +2,13 @@ package net.zsoo.bnet.wow;
 
 import java.lang.reflect.Type;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.JsonAdapter;
 
 public class CharacterEquipmentItem {
 	private SimpleID item;
@@ -36,8 +37,8 @@ public class CharacterEquipmentItem {
 	private Transmog transmog;
 	private SimpleValue durability;
 	private boolean is_subclass_hidden;
+	@JsonAdapter(NameDescriptionDeserilizer.class)
 	private String name_description;
-	private SimpleValue name_description_map;
 
 	public SimpleID getItem() {
 		return item;
@@ -255,33 +256,16 @@ public class CharacterEquipmentItem {
 		this.name_description = name_description;
 	}
 
-	public SimpleValue getName_description_map() {
-		return name_description_map;
-	}
-
-	public void setName_description_map(SimpleValue name_description_map) {
-		this.name_description_map = name_description_map;
-	}
-
-	public static class NameDescriptionDeserilizer implements JsonDeserializer<CharacterEquipmentItem> {
+	public static class NameDescriptionDeserilizer implements JsonDeserializer<String>, JsonSerializer<String> {
 		@Override
-		public CharacterEquipmentItem deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-			CharacterEquipmentItem options = new Gson().fromJson(json, CharacterEquipmentItem.class);
-			JsonObject jsonObject = json.getAsJsonObject();
+		public JsonElement serialize(String src, Type typeOfSrc, JsonSerializationContext context) {
+			return context.serialize(src);
+		}
 
-			if (jsonObject.has("name_description")) {
-				JsonElement elem = jsonObject.get("name_description");
-				if (elem != null && !elem.isJsonNull()) {
-					String str = elem.getAsString();
-					if (str.startsWith("{")) {
-						SimpleValue sv = new Gson().fromJson(str, SimpleValue.class);
-						options.setName_description_map(sv);
-					} else {
-						options.setName_description(str);
-					}
-				}
-			}
-			return options;
+		@Override
+		public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			String str = json.getAsString();
+			return str;
 		}
 	}
 }
