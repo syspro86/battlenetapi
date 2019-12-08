@@ -241,10 +241,14 @@ public class BNAPI {
 					profile.setActive_spec(profileResp.getActive_spec());
 					profile.setRealm(profileResp.getRealm());
 					profile.setGuild(profileResp.getGuild());
-					profile.setEquipped_items(equipmentResp.getEquipped_items());
-					profile.setAvatar_url(mediaResp.getAvatar_url());
-					profile.setBust_url(mediaResp.getBust_url());
-					profile.setRender_url(mediaResp.getRender_url());
+					if (equipmentResp != null) {
+						profile.setEquipped_items(equipmentResp.getEquipped_items());
+					}
+					if (mediaResp != null) {
+						profile.setAvatar_url(mediaResp.getAvatar_url());
+						profile.setBust_url(mediaResp.getBust_url());
+						profile.setRender_url(mediaResp.getRender_url());
+					}
 					return profile;
 				} catch (UnsupportedEncodingException e) {
 					throw new RuntimeException(e);
