@@ -16,6 +16,7 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 import net.zsoo.bnet.profile.wow.character.CharacterEquipmentResp;
 import net.zsoo.bnet.profile.wow.character.CharacterMediaResp;
@@ -147,6 +148,8 @@ public class BNAPI {
 			Gson gson = gb.create();
 			T obj = gson.fromJson(new InputStreamReader(is), clazz);
 			return obj;
+		} catch (JsonSyntaxException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
