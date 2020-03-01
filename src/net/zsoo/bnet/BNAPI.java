@@ -135,6 +135,7 @@ public class BNAPI {
 
 	private <T> T request(String uri, Class<T> clazz) {
 		String jsonStr = null;
+		InputStream is = null;
 		try {
 			String url = urlPrefix + uri;
 			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -143,14 +144,17 @@ public class BNAPI {
 				return null;
 			}
 
-			InputStream is = conn.getInputStream();
-
+			is = conn.getInputStream();
 			GsonBuilder gb = new GsonBuilder();
 //			gb = gb.registerTypeAdapter(CharacterEquipmentItem.class, new CharacterEquipmentItem.NameDescriptionDeserilizer());
 			Gson gson = gb.create();
 			if (true) {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				is.transferTo(baos);
+				byte[] buffer = new byte[1024];
+				int cnt;
+				while ((cnt = is.read(buffer)) >= 0) {
+					baos.write(buffer, 0, cnt);
+				}
 				jsonStr = baos.toString("utf-8");
 				T obj = gson.fromJson(jsonStr, clazz);
 				return obj;
@@ -165,6 +169,14 @@ public class BNAPI {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		return null;
 	}
