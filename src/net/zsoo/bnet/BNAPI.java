@@ -13,6 +13,7 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -133,6 +134,7 @@ public class BNAPI {
 	}
 
 	private <T> T request(String uri, Class<T> clazz) {
+		String jsonStr = null;
 		try {
 			String url = urlPrefix + uri;
 			HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -146,10 +148,21 @@ public class BNAPI {
 			GsonBuilder gb = new GsonBuilder();
 //			gb = gb.registerTypeAdapter(CharacterEquipmentItem.class, new CharacterEquipmentItem.NameDescriptionDeserilizer());
 			Gson gson = gb.create();
-			T obj = gson.fromJson(new InputStreamReader(is), clazz);
-			return obj;
+			if (true) {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				is.transferTo(baos);
+				jsonStr = baos.toString("utf-8");
+				T obj = gson.fromJson(jsonStr, clazz);
+				return obj;
+			} else {
+				T obj = gson.fromJson(new InputStreamReader(is), clazz);
+				return obj;
+			}
 		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
+			if (jsonStr != null) {
+				System.out.println(jsonStr);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
