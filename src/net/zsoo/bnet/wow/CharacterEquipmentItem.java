@@ -39,6 +39,7 @@ public class CharacterEquipmentItem {
 	private Transmog transmog;
 	private SimpleValue durability;
 	private boolean is_subclass_hidden;
+	private boolean is_corrupted;
 	@JsonAdapter(NameDescriptionDeserilizer.class)
 	private String name_description;
 
@@ -248,6 +249,14 @@ public class CharacterEquipmentItem {
 
 	public void setIs_subclass_hidden(boolean is_subclass_hidden) {
 		this.is_subclass_hidden = is_subclass_hidden;
+	}
+
+	public boolean isIs_corrupted() {
+		return is_corrupted;
+	}
+
+	public void setIs_corrupted(boolean is_corrupted) {
+		this.is_corrupted = is_corrupted;
 	}
 
 	public String getName_description() {
